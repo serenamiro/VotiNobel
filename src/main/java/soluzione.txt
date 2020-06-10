@@ -1,0 +1,81 @@
+A partire da un insieme di esami, vogliamo definire tutti i possibili sottoinsiemi.
+
+INPUT: 
+	- insieme di Esame (PARTENZA)
+	- numero di crediti
+
+OUTPUT:
+	- set di Esame, sottoinsieme di PARTENZA, tale per cui 
+		* Somma Esame.crediti == m
+		* Media Esame.voto sia MAX
+		
+APPROCCIO 1: generare i sottoinsiemi di PARTENZA un caso per volta, decidendo
+esame per esame se debba o meno far parte della soluzione. Quindi:
+- livello della ricorsione L mi indica quale corso sto decidendo di mettere
+  o non mettere
+		
+		Elemento 1 dell'insieme (Livello 0)
+			- lo inserisco -> parziale = {e1}
+				Analizzo elemento 2 dell'insieme (Livello 1)
+					- lo inserisco -> parziale = {e1, e2}
+					- non lo inserisco -> parziale = {e1}
+			
+			- non lo inserisco -> parziale = {}
+				Analizzo elemento 2 dell'insieme (Livello 1)
+					- lo inserisco -> parziale = {e2}
+					- non lo inserisco -> parziale = {}
+					
+- soluzione parziale == un sottoinsieme composto dagli esami tra 0 e (L-1)
+
+- generazione di un sottoproblema a livello L: decidere se inserire 
+  esami[L] oppure no. Due possibili sottoproblemi a livello L:
+  	1. non aggiungo niente alla soluzione parziale
+  	2. soluzione parziale + esami[L]
+  	
+- casi terminali: nei casi terminali, prima controllo il numero di crediti; se questa somma
+  è > m esco dalla ricorsione (return), altrimenti controllo la media. Se la media è migliore di 
+  tutte quelle viste fino a quel punto, tengo traccia della soluzione parziale.
+
+	- L = MAX (siamo arrivati al fondo dell'albero, non ci sono più corsi da aggiungere)
+		* se parziale.sommaCrediti() == m -> calcolare la media
+			* se parziale.media() > media di tutte le altre soluzioni viste
+			  						fino ad ora
+			  	-> dovrò tenere traccia di questa soluzione
+		* se parziale.sommaCrediti() != m -> abbandono la soluzione
+		
+	- parziale.sommaCrediti() > m -> mi fermo subito! E' inutile continuare ad aggiungere
+	  altri esami
+	  
+	- parziale.sommaCrediti() == m -> calcolo subito la media e controllo se è migliore
+	  della migliore soluzione trovata fino ad ora. In ogni caso, fermo la ricorsione.
+	  
+	  
+APPROCCIO 2: ad ogni livello aggiungo un corso, devo decidere quale. Ad ogni livello L, la 
+soluzione parziale sarà un sottoinsieme di L esami.
+
+- generazione di un sottoproblema: aggiunta di un nuovo esame alla soluzione parziale.
+  Per tutti i casi possibili (tutti gli esami non ancora compresi nella soluzione
+  parziale):
+  		sottoproblema = parziale + Esame i
+  		
+  		Al primo livello di ricorsione ho N scelte possibili, dove N è la dimensione di 
+  		PARTENZA. Provo tutte le N scelte. 
+  		
+  		Al livello 0, abbiamo N sottoproblemi. Supponiamo che PARTENZA={E1, E2, E3}
+ 			
+ 			[L=0] sottoproblema 1) parziale = {E1}
+ 				[L=1] parziale = {E1, E2}
+ 				[L=1] parziale = {E1, E3}
+ 			[L=0] sottoproblema 2) parziale = {E2}
+ 				[L=1] parziale = {E2, E1}
+ 				[L=1] parziale = {E2, E3}
+ 			[L=0] sottoproblema 3) parziale = {E3}
+ 		
+ 		!! QUESTO APPROCCIO PROVA TUTTE LE POSSIBILI COMBINAZIONI, SENZA GUARDARE L'ORDINE
+ 		E PER QUESTO MOTIVO è UN APPROCCIO UN Pò STUPIDO. è IMPATTANTE SULLE PRESTAZIONI !!
+		
+  		
+	NEL model SONO IMPLEMENTATI ENTRAMBI GLI APPROCCI (cerca1 e cerca2). Il primo approccio 
+	è più furbo. Per migliorare il secondo, si potrebbe aggiungere un vincolo: non considerare
+	sequenze uguali ma invertite (in altre parole considerare solo una volta la sequenza
+	contenente gli esami indipendentemente dall'ordine).
